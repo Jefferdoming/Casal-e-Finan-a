@@ -1,0 +1,99 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile information",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "displayName": { "type": "string" },
+        "email": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "coupleId": { "type": "string", "description": "ID of the couple this user belongs to" },
+        "individualIncome": { "type": "number", "description": "Individual monthly income" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "displayName", "email"]
+    },
+    "Couple": {
+      "title": "Couple",
+      "description": "Couple group information",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "members": { "type": "array", "items": { "type": "string" } },
+        "jointIncome": { "type": "number", "description": "Combined monthly income" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "members"]
+    },
+    "Transaction": {
+      "title": "Transaction",
+      "description": "Financial transaction (income or expense)",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "coupleId": { "type": "string" },
+        "description": { "type": "string" },
+        "amount": { "type": "number" },
+        "type": { "type": "string", "enum": ["income", "expense"] },
+        "category": { "type": "string" },
+        "paymentMethod": { "type": "string", "enum": ["pix", "dinheiro", "cartao"] },
+        "cardName": { "type": "string", "description": "Name of the card if paymentMethod is cartao" },
+        "dueDate": { "type": "string", "format": "date" },
+        "paid": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "createdBy": { "type": "string" }
+      },
+      "required": ["id", "coupleId", "description", "amount", "type", "category", "paymentMethod", "paid"]
+    },
+    "Goal": {
+      "title": "Goal",
+      "description": "Financial goal for the couple",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "coupleId": { "type": "string" },
+        "title": { "type": "string" },
+        "targetAmount": { "type": "number" },
+        "currentAmount": { "type": "number" },
+        "deadline": { "type": "string", "format": "date" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "coupleId", "title", "targetAmount", "currentAmount"]
+    },
+    "LearningProgress": {
+      "title": "LearningProgress",
+      "description": "Progress in the financial learning trail",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "completedSteps": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["userId", "completedSteps"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles"
+    },
+    "/couples/{coupleId}": {
+      "schema": "Couple",
+      "description": "Couple groups"
+    },
+    "/transactions/{transactionId}": {
+      "schema": "Transaction",
+      "description": "All transactions"
+    },
+    "/goals/{goalId}": {
+      "schema": "Goal",
+      "description": "Financial goals"
+    },
+    "/learningProgress/{userId}": {
+      "schema": "LearningProgress",
+      "description": "User learning trail progress"
+    }
+  }
+}
