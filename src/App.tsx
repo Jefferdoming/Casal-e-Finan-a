@@ -38,6 +38,7 @@ import {
   PieChart,
   User as UserIcon,
   Users,
+  ChevronLeft,
   ChevronRight,
   CheckCircle2,
   AlertCircle,
@@ -502,16 +503,16 @@ function DashboardView({ profile, couple, transactions, goals, partner }: {
 }) {
   const [advice, setAdvice] = useState<string>('');
   const [isAdviceLoading, setIsAdviceLoading] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
-  const currentMonth = new Date();
-  const monthTransactions = transactions.filter(t => isSameMonth(parseISO(t.dueDate), currentMonth));
+  const monthTransactions = transactions.filter(t => isSameMonth(parseISO(t.dueDate), selectedDate));
   
   const totalIncome = monthTransactions.filter(t => t.type === 'income').reduce((acc, t) => acc + t.amount, 0);
   const totalExpenses = monthTransactions.filter(t => t.type === 'expense').reduce((acc, t) => acc + t.amount, 0);
   const balance = totalIncome - totalExpenses;
 
   const chartData = useMemo(() => {
-    const last6Months = Array.from({ length: 6 }).map((_, i) => subMonths(currentMonth, 5 - i));
+    const last6Months = Array.from({ length: 6 }).map((_, i) => subMonths(selectedDate, 5 - i));
     return last6Months.map(month => {
       const mTransactions = transactions.filter(t => isSameMonth(parseISO(t.dueDate), month));
       return {
@@ -520,7 +521,7 @@ function DashboardView({ profile, couple, transactions, goals, partner }: {
         saidas: mTransactions.filter(t => t.type === 'expense').reduce((acc, t) => acc + t.amount, 0),
       };
     });
-  }, [transactions]);
+  }, [transactions, selectedDate]);
 
   const categoryData = useMemo(() => {
     const expenses = monthTransactions.filter(t => t.type === 'expense');
@@ -541,19 +542,48 @@ function DashboardView({ profile, couple, transactions, goals, partner }: {
   useEffect(() => {
     if (monthTransactions.length > 0) {
       fetchAdvice();
+    } else {
+      setAdvice('');
     }
-  }, [monthTransactions.length]);
+  }, [monthTransactions.length, selectedDate]);
+
+  const handlePrevMonth = () => setSelectedDate(subMonths(selectedDate, 1));
+  const handleNextMonth = () => setSelectedDate(addMonths(selectedDate, 1));
+  const handleCurrentMonth = () => setSelectedDate(new Date());
 
   return (
     <div className="space-y-8">
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="space-y-1">
           <h2 className="text-3xl font-bold text-neutral-900">Olá, {profile.displayName}!</h2>
           <p className="text-neutral-500">Aqui está o resumo financeiro de {couple?.name || "seu casal"}.</p>
         </div>
-        <div className="flex items-center gap-2 bg-white p-2 rounded-xl border border-neutral-200 shadow-sm">
-          <Badge variant="outline" className="text-xs font-mono">{couple?.id}</Badge>
-          <span className="text-xs text-neutral-400">Código do Casal</span>
+        
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center bg-white rounded-xl border border-neutral-200 shadow-sm p-1">
+            <Button variant="ghost" size="icon" onClick={handlePrevMonth} className="h-8 w-8">
+              <ChevronLeft size={18} />
+            </Button>
+            <div className="px-4 py-1 min-w-[140px] text-center">
+              <span className="text-sm font-bold text-neutral-900 capitalize">
+                {format(selectedDate, 'MMMM yyyy', { locale: ptBR })}
+              </span>
+            </div>
+            <Button variant="ghost" size="icon" onClick={handleNextMonth} className="h-8 w-8">
+              <ChevronRight size={18} />
+            </Button>
+          </div>
+          
+          {!isSameMonth(selectedDate, new Date()) && (
+            <Button variant="outline" size="sm" onClick={handleCurrentMonth} className="rounded-xl">
+              Mês Atual
+            </Button>
+          )}
+
+          <div className="hidden sm:flex items-center gap-2 bg-white p-2 rounded-xl border border-neutral-200 shadow-sm">
+            <Badge variant="outline" className="text-xs font-mono">{couple?.id}</Badge>
+            <span className="text-xs text-neutral-400">Código</span>
+          </div>
         </div>
       </header>
 
