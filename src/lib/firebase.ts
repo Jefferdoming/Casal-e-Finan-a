@@ -8,13 +8,19 @@ export const auth = getAuth(app);
 export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
 export const googleProvider = new GoogleAuthProvider();
 
+let isAuthOperationPending = false;
+
 export const signInWithGoogle = async () => {
+  if (isAuthOperationPending) return;
+  isAuthOperationPending = true;
   try {
     const result = await signInWithPopup(auth, googleProvider);
     return result.user;
   } catch (error) {
     console.error("Error signing in with Google", error);
     throw error;
+  } finally {
+    isAuthOperationPending = false;
   }
 };
 

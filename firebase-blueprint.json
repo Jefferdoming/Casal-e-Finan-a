@@ -72,6 +72,74 @@
         "completedSteps": { "type": "array", "items": { "type": "string" } }
       },
       "required": ["userId", "completedSteps"]
+    },
+    "MonthlyBill": {
+      "title": "MonthlyBill",
+      "description": "A recurring monthly bill",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "coupleId": { "type": "string" },
+        "title": { "type": "string" },
+        "amount": { "type": "number" },
+        "dueDateDay": { "type": "integer", "minimum": 1, "maximum": 31 },
+        "category": { "type": "string" },
+        "paid": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "coupleId", "title", "amount", "dueDateDay", "category", "paid"]
+    },
+    "Loan": {
+      "title": "Loan",
+      "description": "Information about a loan",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "coupleId": { "type": "string" },
+        "title": { "type": "string" },
+        "totalAmount": { "type": "number" },
+        "remainingAmount": { "type": "number" },
+        "interestRate": { "type": "number" },
+        "monthlyPayment": { "type": "number" },
+        "dueDateDay": { "type": "integer", "minimum": 1, "maximum": 31 },
+        "totalInstallments": { "type": "integer", "minimum": 1 },
+        "currentInstallment": { "type": "integer", "minimum": 0 },
+        "lender": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "coupleId", "title", "totalAmount", "remainingAmount", "interestRate", "monthlyPayment", "dueDateDay"]
+    },
+    "Investment": {
+      "title": "Investment",
+      "description": "Information about an investment",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "coupleId": { "type": "string" },
+        "title": { "type": "string" },
+        "amount": { "type": "number" },
+        "type": { "type": "string" },
+        "interestRate": { "type": "number" },
+        "totalInstallments": { "type": "integer" },
+        "currentInstallment": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "coupleId", "title", "amount", "type"]
+    },
+    "WalletAccount": {
+      "title": "WalletAccount",
+      "description": "Bank account or piggy bank",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "coupleId": { "type": "string" },
+        "name": { "type": "string" },
+        "balance": { "type": "number" },
+        "isPiggyBank": { "type": "boolean" },
+        "lender": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "coupleId", "name", "balance", "isPiggyBank"]
     }
   },
   "firestore": {
@@ -90,6 +158,22 @@
     "/goals/{goalId}": {
       "schema": "Goal",
       "description": "Financial goals"
+    },
+    "/monthlyBills/{billId}": {
+      "schema": "MonthlyBill",
+      "description": "Recurring monthly bills"
+    },
+    "/loans/{loanId}": {
+      "schema": "Loan",
+      "description": "Active loans"
+    },
+    "/investments/{investmentId}": {
+      "schema": "Investment",
+      "description": "Current investments"
+    },
+    "/wallets/{walletId}": {
+      "schema": "WalletAccount",
+      "description": "Bank accounts and savings"
     },
     "/learningProgress/{userId}": {
       "schema": "LearningProgress",

@@ -58,7 +58,42 @@ service cloud.firestore {
       return data.keys().hasAll(['coupleId', 'title', 'targetAmount', 'currentAmount']) &&
              data.targetAmount is number && data.targetAmount > 0 &&
              data.currentAmount is number && data.currentAmount >= 0 &&
-             data.title.size() < 100;
+             data.title is string && data.title.size() <= 100;
+    }
+
+    function isValidMonthlyBill(data) {
+      return data.keys().hasAll(['coupleId', 'title', 'amount', 'dueDateDay', 'category', 'paid']) &&
+             data.amount is number && data.amount >= 0 &&
+             data.dueDateDay is int && data.dueDateDay >= 1 && data.dueDateDay <= 31 &&
+             data.title is string && data.title.size() <= 100;
+    }
+
+    function isValidLoan(data) {
+      return data.keys().hasAll(['coupleId', 'title', 'totalAmount', 'remainingAmount', 'interestRate', 'monthlyPayment', 'dueDateDay']) &&
+             data.totalAmount is number && data.totalAmount >= 0 &&
+             data.remainingAmount is number && data.remainingAmount >= 0 &&
+             data.interestRate is number &&
+             data.monthlyPayment is number && data.monthlyPayment >= 0 &&
+             data.dueDateDay is int && data.dueDateDay >= 1 && data.dueDateDay <= 31 &&
+             data.title is string && data.title.size() <= 100 &&
+             (data.get('totalInstallments', 0) is int) &&
+             (data.get('currentInstallment', 0) is int);
+    }
+
+    function isValidInvestment(data) {
+      return data.keys().hasAll(['coupleId', 'title', 'amount', 'type']) &&
+             data.amount is number && data.amount >= 0 &&
+             data.title is string && data.title.size() <= 100 &&
+             data.type is string &&
+             (data.get('totalInstallments', 0) is int) &&
+             (data.get('currentInstallment', 0) is int);
+    }
+
+    function isValidWallet(data) {
+      return data.keys().hasAll(['coupleId', 'name', 'balance', 'isPiggyBank']) &&
+             data.balance is number &&
+             data.name is string && data.name.size() <= 100 &&
+             data.isPiggyBank is bool;
     }
 
     // ===============================================================
@@ -66,7 +101,7 @@ service cloud.firestore {
     // ===============================================================
 
     match /users/{userId} {
-      allow read: if isAuthenticated(); // Allow reading other users to find partners, but PII should be minimal
+      allow read: if isAuthenticated();
       allow create, update: if isOwner(userId) && isValidUser(request.resource.data);
     }
 
@@ -87,6 +122,34 @@ service cloud.firestore {
       allow read: if isAuthenticated() && isMemberOfCouple(resource.data.coupleId);
       allow create: if isAuthenticated() && isMemberOfCouple(request.resource.data.coupleId) && isValidGoal(request.resource.data);
       allow update: if isAuthenticated() && isMemberOfCouple(resource.data.coupleId) && isMemberOfCouple(request.resource.data.coupleId) && isValidGoal(request.resource.data);
+      allow delete: if isAuthenticated() && isMemberOfCouple(resource.data.coupleId);
+    }
+
+    match /monthlyBills/{billId} {
+      allow read: if isAuthenticated() && isMemberOfCouple(resource.data.coupleId);
+      allow create: if isAuthenticated() && isMemberOfCouple(request.resource.data.coupleId) && isValidMonthlyBill(request.resource.data);
+      allow update: if isAuthenticated() && isMemberOfCouple(resource.data.coupleId) && isMemberOfCouple(request.resource.data.coupleId) && isValidMonthlyBill(request.resource.data);
+      allow delete: if isAuthenticated() && isMemberOfCouple(resource.data.coupleId);
+    }
+
+    match /loans/{loanId} {
+      allow read: if isAuthenticated() && isMemberOfCouple(resource.data.coupleId);
+      allow create: if isAuthenticated() && isMemberOfCouple(request.resource.data.coupleId) && isValidLoan(request.resource.data);
+      allow update: if isAuthenticated() && isMemberOfCouple(resource.data.coupleId) && isMemberOfCouple(request.resource.data.coupleId) && isValidLoan(request.resource.data);
+      allow delete: if isAuthenticated() && isMemberOfCouple(resource.data.coupleId);
+    }
+
+    match /investments/{investmentId} {
+      allow read: if isAuthenticated() && isMemberOfCouple(resource.data.coupleId);
+      allow create: if isAuthenticated() && isMemberOfCouple(request.resource.data.coupleId) && isValidInvestment(request.resource.data);
+      allow update: if isAuthenticated() && isMemberOfCouple(resource.data.coupleId) && isMemberOfCouple(request.resource.data.coupleId) && isValidInvestment(request.resource.data);
+      allow delete: if isAuthenticated() && isMemberOfCouple(resource.data.coupleId);
+    }
+
+    match /wallets/{walletId} {
+      allow read: if isAuthenticated() && isMemberOfCouple(resource.data.coupleId);
+      allow create: if isAuthenticated() && isMemberOfCouple(request.resource.data.coupleId) && isValidWallet(request.resource.data);
+      allow update: if isAuthenticated() && isMemberOfCouple(resource.data.coupleId) && isMemberOfCouple(request.resource.data.coupleId) && isValidWallet(request.resource.data);
       allow delete: if isAuthenticated() && isMemberOfCouple(resource.data.coupleId);
     }
 

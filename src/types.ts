@@ -34,6 +34,17 @@ export interface Transaction {
   createdBy: string;
 }
 
+export interface MonthlyBill {
+  id: string;
+  coupleId: string;
+  title: string;
+  amount: number;
+  dueDateDay: number; // Day of the month (1-31)
+  category: string;
+  paid: boolean;
+  createdAt: string;
+}
+
 export interface Goal {
   id: string;
   coupleId: string;
@@ -54,4 +65,41 @@ export interface LearningStep {
 export interface LearningProgress {
   userId: string;
   completedSteps: string[];
+}
+
+export interface Loan {
+  id: string;
+  coupleId: string;
+  title: string;
+  totalAmount: number;
+  remainingAmount: number;
+  interestRate: number; // Percentual (%)
+  monthlyPayment: number;
+  dueDateDay: number;
+  totalInstallments?: number;
+  currentInstallment?: number;
+  lender: string;
+  createdAt: string;
+}
+
+export interface Investment {
+  id: string;
+  coupleId: string;
+  title: string;
+  amount: number;
+  type: string;
+  interestRate?: number; // Percentual (%)
+  totalInstallments?: number;
+  currentInstallment?: number;
+  createdAt: string;
+}
+
+export interface WalletAccount {
+  id: string;
+  coupleId: string;
+  name: string;
+  balance: number;
+  isPiggyBank: boolean; // Se é um "cofrinho" ou reserva
+  lender?: string; // Ex: Mercado Pago, Nubank
+  createdAt: string;
 }
